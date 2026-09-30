@@ -19,8 +19,16 @@ SILVER_PATH = (
 
 
 def get_well_production(
-    query: WellProductionQuery,
+    well_id: int,
+    year: int,
+    month: int,
 ) -> WellProductionResult:
+
+    query = WellProductionQuery(
+        well_id=well_id,
+        year=year,
+        month=month,
+    )
 
     df = pd.read_parquet(SILVER_PATH)
 
