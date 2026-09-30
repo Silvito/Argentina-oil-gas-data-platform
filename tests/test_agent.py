@@ -10,22 +10,21 @@ def test_agent_get_well_production():
         "Cuanto produjo el pozo 28963 en 2026 mes 8?"
     )
 
-    assert result.well_id == 28963
-    assert result.year == 2026
-    assert result.month == 8
-    assert result.oil_m3 == 20.75
-    assert result.gas_m3 == 1.91
-    assert result.water_m3 == -0.99
+    assert "El pozo 28963 produjo" in result
+    assert "20.75 m3 de petróleo" in result
+    assert "1.91 m3 de gas" in result
+    assert "-0.99 m3 de agua" in result
 
 
 class FakeLLMInvalidTool:
 
-    def generate_tool_call(
+    def generate(
         self,
-        user_message: str,
+        messages: list[dict],
     ) -> dict:
 
         return {
+            "type": "tool_call",
             "tool": "non_existing_tool",
             "arguments": {},
         }
@@ -38,5 +37,6 @@ def test_agent_invalid_tool():
     try:
         agent.run("consulta")
         assert False
+
     except ValueError as error:
         assert "Herramienta no disponible" in str(error)

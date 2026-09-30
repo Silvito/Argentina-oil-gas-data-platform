@@ -8,15 +8,44 @@ class Agent:
 
     def run(self, user_message: str):
 
-        tool_call = self.llm.generate_tool_call(
-            user_message
-        )
+        messages = [
+            {
+                "role": "user",
+                "content": user_message,
+            }
+        ]
 
-        tool_name = tool_call["tool"]
-        arguments = tool_call["arguments"]
+        while True:
 
-        tool = get_tool(tool_name)
+            response = self.llm.generate(messages)
 
-        result = tool(**arguments)
+            if response["type"] == "final":
+                return response["content"]
 
-        return result
+            if response["type"] != "tool_call":
+                raise ValueError(
+                    "Respuesta del LLM no soportada."
+                )
+
+            tool_name = response["tool"]
+            arguments = response["arguments"]
+
+            tool = get_tool(tool_name)
+
+            result = tool(**arguments)
+
+            result_dict = result.model_dump()
+
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": response,
+                }
+            )
+
+            messages.append(
+                {
+                    "role": "tool",
+                    "content": result_dict,
+                }
+            )
