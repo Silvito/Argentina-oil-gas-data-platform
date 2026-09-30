@@ -34,7 +34,12 @@ class Agent:
 
             result = tool(**arguments)
 
-            result_dict = result.model_dump()
+            if isinstance(result, list):
+                result_dict = [
+                    item.model_dump()
+                    for item in result]
+            else:
+                result_dict = result.model_dump()
 
             messages.append(
                 {

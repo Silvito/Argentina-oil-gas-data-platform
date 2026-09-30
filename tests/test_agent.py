@@ -40,3 +40,27 @@ def test_agent_invalid_tool():
 
     except ValueError as error:
         assert "Herramienta no disponible" in str(error)
+
+def test_agent_selects_history_tool():
+
+    agent = Agent(FakeLLM())
+
+    result = agent.run(
+        "Dame el historial del pozo 28963 en 2026"
+    )
+
+    assert (
+        "Se encontraron 8 registros mensuales"
+        in result
+    )
+
+
+def test_agent_selects_monthly_tool():
+
+    agent = Agent(FakeLLM())
+
+    result = agent.run(
+        "Cuanto produjo el pozo 28963 en 2026 mes 8?"
+    )
+
+    assert "20.75 m3 de petróleo" in result
