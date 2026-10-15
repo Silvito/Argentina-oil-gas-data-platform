@@ -24,3 +24,14 @@ data/gold/
 # OS
 .DS_Store
 Thumbs.db
+
+# dbt artifacts
+oil_gas_analytics/target/
+oil_gas_analytics/logs/
+oil_gas_analytics/dbt_packages/
+oil_gas_analytics/dev.duckdb
+oil_gas_analytics/prod.duckdb
+
+# dbt-generated files
+logs/
+target/

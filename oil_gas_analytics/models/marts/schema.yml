@@ -1,0 +1,32 @@
+
+version: 2
+
+models:
+  - name: stg_production
+    description: "Producción por pozo de Argentina, capa Silver."
+    columns:
+      - name: idpozo
+        data_tests:
+          - not_null
+      - name: anio
+        data_tests:
+          - not_null
+      - name: mes
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+  - name: fct_monthly_production
+    description: "Producción mensual agregada por provincia y cuenca."
+    columns:
+      - name: anio
+        data_tests:
+          - not_null
+      - name: mes
+        data_tests:
+          - not_null
+      - name: provincia
+        data_tests:
+          - not_null
