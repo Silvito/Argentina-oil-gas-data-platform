@@ -1,445 +1,405 @@
 # Argentina Oil & Gas Data Platform
 
-Plataforma de datos orientada al análisis de producción de petróleo y gas en Argentina, construida a partir de datos públicos del sector energético.
+An end-to-end Data Engineering project for ingesting, transforming, validating, and analyzing public oil and gas production data from Argentina.
 
-El proyecto simula un entorno profesional de **Data Engineering**, implementando progresivamente un pipeline de datos desde la extracción de información pública hasta su transformación, validación, modelado y posterior consumo analítico.
+The platform uses Python, Pandas, PySpark, DuckDB, and dbt to build a reproducible analytical pipeline, with a focus on data quality, transformation consistency, and production analytics.
 
-## Objetivo
+**Project status:** Core ingestion, transformation, analytical modeling, and data reconciliation components are implemented. Containerization, automated CI/CD, orchestration, and cloud deployment are planned.
 
-Construir una plataforma de datos reproducible y escalable que permita procesar información de producción de pozos de petróleo y gas y generar datasets preparados para análisis y visualización.
+## Overview
 
-El proyecto busca aplicar prácticas utilizadas en entornos reales de ingeniería de datos:
+This project explores how public oil and gas production data can be transformed into reliable analytical datasets using modern Data Engineering practices.
 
-* Ingesta automatizada de datos.
-* Data Lake y almacenamiento en formato Parquet.
-* Procesamiento con Python y PySpark.
-* Validación y Data Quality.
-* Modelado dimensional.
-* Transformaciones SQL mediante dbt.
-* Orquestación de pipelines.
-* Containerización.
-* CI/CD.
-* Cloud Computing.
-* Analítica y visualización.
+The source data is obtained from Argentina's public energy data infrastructure through CKAN. The pipeline progressively separates raw source data, standardized datasets, and business-oriented analytical outputs.
 
----
+The project also includes an AI agent module with tools designed to interact with production-related data.
 
-## Fuente de datos
+### Key objectives
 
-Los datos utilizados provienen del portal oficial de datos abiertos del Gobierno de Argentina.
+- Ingest public datasets through a programmatic CKAN client.
+- Preserve source data and separate storage layers.
+- Implement Silver transformations using both Pandas and PySpark.
+- Build aggregated Gold datasets using PySpark.
+- Create analytical models with dbt and DuckDB.
+- Validate data quality through automated tests and business rules.
+- Reconcile analytical results produced by different processing engines.
+- Develop a foundation for future orchestration, cloud deployment, and AI-assisted analytics.
 
-**Dataset:** Producción de petróleo y gas por pozo (Capítulo IV)
+## Architecture
 
-Fuente:
+```mermaid
+flowchart TD
+    A[Public Energy Data / CKAN]
+    B[Python Ingestion]
+    C[Raw Source Data]
+    D[Bronze - Parquet]
+    E[Silver - Pandas]
+    F[Silver - PySpark]
+    G[Gold - PySpark]
+    H[dbt Staging]
+    I[dbt Monthly Production Mart]
+    J[Quality Tests and Reconciliation]
+    K[Future: Dashboard / BI]
+    L[AI Agent and Query Tools]
 
-* Datos Argentina
-* Secretaría de Energía
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    D --> F
+    F --> G
+    G --> J
+    D --> H
+    H --> I
+    I --> J
+    J -. Future .-> K
+    I -. Controlled integration under development .-> L
+```
 
-El proyecto utiliza la API CKAN del portal para descubrir los recursos disponibles y obtener los archivos correspondientes.
+The diagram represents the project's logical architecture. Not every connection is currently orchestrated as a single automated workflow.
 
----
+### Data layers
 
-## Arquitectura
+| Layer | Responsibility | Implementation |
+|---|---|---|
+| Raw | Preserve source extracts for traceability | Python ingestion and local storage |
+| Bronze | Store source data in a columnar format | Parquet |
+| Silver | Standardize and transform source datasets | Pandas and PySpark |
+| Gold | Produce aggregated analytical datasets | PySpark |
+| Analytics | Build SQL models for downstream analysis | dbt + DuckDB |
 
-La arquitectura se desarrollará progresivamente a medida que avance el proyecto.
+Raw and Bronze represent distinct logical responsibilities. Their physical storage paths and execution steps depend on the existing ingestion implementation.
 
-                    ┌──────────────────────────┐
-                    │     Datos Argentina      │
-                    │       CKAN API           │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │      Python Ingestion    │
-                    │       API / CSV          │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                     ___________________________            
-                    │     Bronze / Raw Layer   │
-                    │       ADLS / Parquet     │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │       PySpark             │
-                    │   Cleaning / Processing  │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │      Silver Layer        │
-                    │  Standardized Data       │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │          dbt              │
-                    │ SQL Transformations      │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │       Gold Layer         │
-                    │ Business-ready Data      │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │ Data Warehouse / Synapse │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │       Power BI            │
-                    │ Analytics & Dashboards    │
-                    └──────────────────────────┘
+## Technology stack
 
+| Technology | Purpose |
+|---|---|
+| Python | Ingestion, transformation logic, validation, and integration |
+| Pandas | Data exploration and local transformations |
+| PySpark | Distributed data processing and analytical aggregation |
+| Parquet | Columnar storage for processed datasets |
+| DuckDB | Local analytical SQL engine |
+| dbt | SQL modeling and data quality tests |
+| pytest | Automated Python testing |
+| Git and GitHub | Version control and project collaboration |
+| Jupyter Notebook | Data exploration and discovery |
 
-        Cross-cutting components
+Additional components in `src/ai/` provide an extensible foundation for AI-assisted data access.
 
-        Airflow       → Orchestration
-        Docker        → Containerization
-        Git/GitHub    → Version Control
-        GitHub Actions→ CI/CD
-        Pytest        → Data Quality
-        dbt tests     → Data Quality
+## Repository structure
 
-La arquitectura es evolutiva. Algunas tecnologías se incorporarán únicamente cuando sean necesarias para la siguiente etapa del pipeline.
-
-Tech Stack
-Data Engineering
-Python
-Pandas
-PySpark
-SQL
-dbt
-Data Storage
-CSV
-Parquet
-Data Lake
-Azure Data Lake Storage Gen2
-Data Warehouse
-Microsoft Fabric / Azure Synapse / PostgreSQL
-SQL
-
-La tecnología definitiva de serving/warehouse se definirá durante la etapa de modelado y cloud.
-
-Orchestration
-Apache Airflow
-Cloud
-Microsoft Azure
-Azure Data Lake Storage Gen2
-Azure Data Factory
-Azure Synapse / Microsoft Fabric
-Azure Databricks
-Development
-Git
-GitHub
-GitHub Actions
-Docker
-VS Code
-Testing & Data Quality
-Pytest
-dbt tests
-Data validation rules
-Visualization
-Power BI
-
-Project Structure
-
-Actualmente el proyecto se encuentra en una etapa inicial de Data Discovery.
-
+```text
 Argentina-oil-gas-data-platform/
-│
-├── src/
-│   └── ingestion/
-│       └── ckan_client.py
-│
-├── notebooks/
-│   └── 01_data_exploration.ipynb
-│
 ├── docs/
 │   └── data_discovery.md
-│
-├── data/
-│   ├── raw/
-│   ├── bronze/
-│   ├── silver/
-│   └── gold/
-│
+├── notebooks/
+│   └── 01_data_exploration.ipynb
+├── oil_gas_analytics/
+│   ├── models/
+│   │   ├── staging/
+│   │   │   └── stg_production.sql
+│   │   └── marts/
+│   │       ├── fct_monthly_production.sql
+│   │       └── schema.yml
+│   ├── tests/
+│   │   ├── monthly_totals_match_staging.sql
+│   │   ├── non_negative_monthly_production.sql
+│   │   └── unique_monthly_production_key.sql
+│   ├── dbt_project.yml
+│   └── README.md
+├── src/
+│   ├── ai/
+│   │   ├── schemas/
+│   │   ├── tools/
+│   │   ├── agent.py
+│   │   ├── fake_llm.py
+│   │   ├── llm_client.py
+│   │   └── llm_interface.py
+│   ├── ingestion/
+│   │   └── ckan_client.py
+│   ├── quality/
+│   │   ├── compare_dbt_gold.py
+│   │   └── data_quality.py
+│   └── transformation/
+│       ├── gold_spark.py
+│       ├── silver.py
+│       └── silver_spark.py
 ├── tests/
-│
-├── dbt/
-│
-├── airflow/
-│
-├── Dockerfile
-├── requirements.txt
+│   ├── test_agent.py
+│   ├── test_data_quality.py
+│   ├── test_gold_spark.py
+│   ├── test_history_tool.py
+│   ├── test_production_tool.py
+│   └── test_spark_silver.py
 ├── .gitignore
+├── requirements.txt
 └── README.md
+```
 
-La estructura se irá ampliando a medida que se incorporen nuevas etapas.
+Generated dbt artifacts, local databases, virtual environments, and raw or processed data files are excluded from version control where configured.
 
-Current Progress
-Phase 0 — Project Design
+## Data source and discovery
 
-Definición del objetivo
+The project uses public oil and gas production information from Argentina's energy data infrastructure, accessed through CKAN.
 
-Definición de arquitectura inicial
+The exploratory analysis investigates the data grain, candidate keys, missing values, zero-heavy variables, and differences between source resources.
 
-Selección de fuente de datos
+Detailed findings are documented in [`docs/data_discovery.md`](docs/data_discovery.md).
 
-Creación del repositorio
+### Preliminary findings
 
-Configuración del entorno Python
+The 2026 dataset samples investigated contain approximately 650,000 records and 38 columns, with exact row counts varying by resource and extract.
 
-Phase 1 — Data Discovery
+Findings include:
 
-Identificación del dataset mediante CKAN API
+- `idempresa + anio + mes + idpozo` is a candidate natural key for the observed production grain.
+- The data appears to represent production at company, well, and month level.
+- The standard Production and DDJJ resources contain different numbers of records.
+- A preliminary comparison identified 1,563 DDJJ records without a matching key in the Production resource.
+- Several production and injection variables contain many zero values.
+- `iny_co2` contained only zeros in the 2026 sample investigated so far.
+- Missing values, extreme observations, and near-zero floating-point values require further business interpretation.
 
-Identificación de recursos disponibles
+These observations are exploratory, not universal data-quality rules. In particular, differences between source resources should be investigated before being classified as missing or invalid production records.
 
-Identificación de recursos correspondientes a 2026
+## Pipeline implementation
 
-Descarga exploratoria de los datasets
+### 1. Ingestion
 
-Análisis inicial de estructura
+The CKAN client in `src/ingestion/ckan_client.py` provides the foundation for retrieving source metadata and resources programmatically.
 
-Identificación de 38 columnas
+The objective is to reduce manual downloads and support reproducible source extraction.
 
-Análisis inicial de valores nulos
+### 2. Silver transformations
 
-Análisis de valores cero
+Two transformation implementations are maintained:
 
-Investigación preliminar de granularidad
+- Pandas: `src/transformation/silver.py`
+- PySpark: `src/transformation/silver_spark.py`
 
-Identificación de diferencias entre recursos
+Their equivalence has been tested to check that both implementations produce consistent standardized data.
 
-Phase 2 — Python Ingestion
+### 3. Gold analytics
 
-Diseño del ingestion pipeline
+`src/transformation/gold_spark.py` implements the PySpark Gold layer, aggregating production data into a monthly analytical dataset.
 
-Descarga automatizada
+This layer provides the basis for downstream SQL modeling and production analysis.
 
-Manejo de errores y reintentos
+### 4. dbt and DuckDB
 
-Logging
+The dbt project is located in `oil_gas_analytics/`.
 
-Persistencia en Raw/Bronze
+**Staging model:** `stg_production.sql`
 
-Configuración parametrizable
+Prepares the production data for analytical modeling.
 
-Phase 3 — Data Quality
+**Mart model:** `fct_monthly_production.sql`
 
-Definición de Data Contract
+Builds a monthly production fact dataset for analytical consumption.
 
-Validación de esquema
+The project materializes staging models as views and marts as tables, according to `dbt_project.yml`.
 
-Validación de tipos
+### 5. Reconciliation across processing engines
 
-Validación de claves
+The validation script `src/quality/compare_dbt_gold.py` compares the dbt analytical mart against the PySpark Gold output.
 
-Validación de valores
+This provides a cross-engine consistency check rather than relying solely on tests within a single implementation.
 
-Tests automatizados con Pytest
+## Data quality and testing
 
-Phase 4 — Data Lake & Parquet
+The project includes Python tests, PySpark tests, dbt schema tests, SQL data tests, and an explicit reconciliation between analytical outputs.
 
-Conversión CSV → Parquet
+Examples of implemented checks include:
 
-Diseño de particiones
+- Validation of the equivalence between Pandas and PySpark Silver transformations.
+- Business-oriented data-quality checks.
+- Uniqueness of the monthly production key.
+- Non-negative monthly production values.
+- Consistency of monthly totals with staging data.
+- Reconciliation of dbt and PySpark Gold results.
 
-Bronze Layer
+### Verified reconciliation result
 
-Silver Layer
+One recorded execution produced the following results:
 
-Phase 5 — PySpark
+| Metric | Result |
+|---|---:|
+| Rows in dbt mart | 136 |
+| Rows in PySpark Gold | 136 |
+| Keys only in dbt | 0 |
+| Keys only in PySpark | 0 |
+| Matching keys | 136 |
 
-Procesamiento distribuido
+This confirms key-level reconciliation for that execution. It does not, by itself, establish that every individual measure is identical or that all source data is correct.
 
-Transformaciones
+### Recorded processing volume
 
-Optimización
+A previous pipeline execution processed 653,543 records across 38 columns. This figure describes that particular execution, not a permanent dataset size or a guaranteed volume for future runs.
 
-Escritura de datasets Silver
+## AI integration
 
-Phase 6 — Data Warehouse
+The repository contains an AI module under `src/ai/`, including:
 
-Definición del modelo dimensional
+- An agent entry point.
+- An LLM interface and client.
+- Production and history tools.
+- Tool definitions and a registry.
+- Pydantic schemas for production-related data.
+- A fake LLM implementation for development and testing.
 
-Fact tables
+The intended direction is to let an AI agent answer questions using controlled access to validated analytical datasets.
 
-Dimension tables
+Future improvements include tool-level validation, traceable SQL or metric results, response evaluation, and explicit safeguards against fabricated production figures.
 
-Star Schema
+The presence of these components does not imply that the agent is already deployed as a production service or integrated with a live cloud data platform.
 
-SQL analytics
+## Getting started
 
-Phase 7 — dbt
+### Prerequisites
 
-Staging models
+- Git
+- Python compatible with the pinned project dependencies
+- Java compatible with the installed PySpark version
+- A configured dbt profile for DuckDB
 
-Intermediate models
+The project has been developed and tested in a local Windows environment. Other operating systems may require adjustments to environment setup and execution commands.
 
-Mart models
+### 1. Clone the repository
 
-Tests
+```powershell
+git clone https://github.com/Silvito/Argentina-oil-gas-data-platform.git
+cd Argentina-oil-gas-data-platform
+```
 
-Documentation
+### 2. Create and activate a virtual environment
 
-Lineage
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-Incremental models
+If PowerShell prevents activation, use an approved execution-policy configuration for your environment rather than changing system-wide security settings unnecessarily.
 
-Phase 8 — Cloud
+### 3. Install dependencies
 
-Azure Data Lake Storage
+```powershell
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-Azure Data Factory
+The dependency file pins package versions to improve reproducibility. Compatibility should be validated on a clean environment before claiming support for a particular Python or Java version.
 
-Databricks
+### 4. Configure dbt
 
-Synapse / Fabric
+Create a dbt profile in the standard location:
 
-Cloud architecture
+`%USERPROFILE%\.dbt\profiles.yml`
 
-Phase 9 — Orchestration
+The profile name must match `oil_gas_analytics`, as declared in `dbt_project.yml`.
 
-Airflow DAG
+Configure the DuckDB adapter and the appropriate local database path for your environment. Avoid committing machine-specific paths or secrets.
 
-Pipeline dependencies
+### 5. Validate the dbt project
 
-Scheduling
+From the repository root:
 
-Monitoring
+```powershell
+dbt debug --project-dir oil_gas_analytics
+dbt compile --project-dir oil_gas_analytics
+```
 
-Phase 10 — Containerization
+These commands validate the configured connection and compile the SQL models. A successful compilation does not guarantee that upstream source data is available for execution.
 
-Dockerfile
+## Running tests
 
-Docker Compose
+### Python tests
 
-Reproducible environment
+Run the existing test suite from the repository root:
 
-Phase 11 — CI/CD
+```powershell
+python -m pytest -v
+```
 
-GitHub Actions
+Tests that require source data, a particular environment, or an external service may need additional configuration.
 
-Automated tests
+### dbt tests
 
-Pipeline validation
+After configuring the profile and ensuring the expected source relation exists:
 
-Deployment workflow
+```powershell
+dbt test --project-dir oil_gas_analytics
+```
 
-Phase 12 — Analytics
+To build models and execute applicable tests together:
 
-Analytical queries
+```powershell
+dbt build --project-dir oil_gas_analytics
+```
 
-KPIs
+The actual source configuration and execution order should be checked against the current dbt models before running the full build.
 
-Power BI dashboard
+### Reconcile dbt and PySpark Gold
 
-Production analysis
+The repository includes a dedicated comparison script:
 
-Well performance analysis
+```powershell
+python .\src\quality\compare_dbt_gold.py
+```
 
-Geographic analysis
+Run it after producing the required Gold dataset and building the corresponding dbt mart. The script depends on the local data and database configuration expected by its implementation.
 
-Data Discovery — Initial Findings
+The reconciliation is designed to identify keys that exist in only one result. Consult the script and its output to determine which additional measure-level comparisons are performed.
 
-The 2026 dataset currently being investigated contains approximately 650,000 records and 38 columns.
+## Current status and roadmap
 
-The preliminary investigation indicates that:
+| Component | Status |
+|---|---|
+| CKAN ingestion client | Implemented |
+| Raw/Bronze storage | Implemented in the existing local pipeline |
+| Pandas Silver | Implemented |
+| PySpark Silver | Implemented |
+| Pandas/PySpark equivalence validation | Implemented and tested |
+| PySpark Gold aggregation | Implemented |
+| dbt staging and mart models | Implemented |
+| dbt data-quality tests | Implemented |
+| dbt/PySpark reconciliation | Implemented and executed successfully |
+| AI agent and query tools | Present in the codebase; capabilities are under development |
+| Docker | Planned |
+| GitHub Actions CI/CD | Planned |
+| Airflow orchestration | Planned |
+| Azure Data Lake Storage Gen2 | Planned |
+| Cloud Databricks | Planned |
+| Power BI dashboard | Planned |
+| Automated anomaly detection | Planned |
 
-idempresa + anio + mes + idpozo can act as a candidate natural key.
-The current dataset appears to represent production information at a company + well + month level.
-The standard Production resource and the DDJJ resource contain a different number of records.
-1,563 records were identified in the DDJJ resource that were not present in the Production resource under the candidate key.
-Several production and injection variables contain a high proportion of zero values.
-iny_co2 contains only zero values in the 2026 sample investigated so far.
-Some variables contain missing values and require business interpretation before defining data-quality rules.
-Extreme values and near-zero floating-point values have been identified and require investigation rather than automatic removal.
+### Next engineering milestones
 
-These findings are preliminary and will be validated during the Data Discovery phase.
+1. Finalize repository documentation and validate a clean local setup.
+2. Standardize test execution across Python, PySpark, and dbt.
+3. Containerize the environment with Docker.
+4. Add GitHub Actions workflows for automated testing.
+5. Orchestrate ingestion, transformations, dbt, and validation with Airflow.
+6. Evaluate cloud storage and processing with Azure and Databricks.
+7. Publish analytical metrics through a dashboard.
+8. Expand the AI agent with grounded, auditable data access.
 
-Detailed findings are documented in:
+## Engineering principles
 
-docs/data_discovery.md
-Data Pipeline Principles
+The project follows several principles:
 
-The project follows several principles commonly used in professional Data Engineering environments.
+- **Preserve source data:** retain the ability to investigate and reproduce transformations.
+- **Separate responsibilities:** distinguish ingestion, standardization, analytical aggregation, and modeling.
+- **Validate transformations:** compare implementations and test business assumptions.
+- **Avoid arbitrary cleaning:** investigate anomalies and missing values before removing records.
+- **Build incrementally:** introduce infrastructure when it solves a specific engineering problem.
+- **Keep results traceable:** distinguish measured outcomes from preliminary findings and future goals.
 
-1. Understand the data before transforming it
+## Author
 
-Business meaning, grain, keys, units and source behavior will be investigated before implementing cleaning rules.
+**Silvio Martinez**
 
-2. Preserve raw data
-
-The original source data should remain available so that transformations can be reproduced and audited.
-
-3. Separate storage layers
-
-The pipeline will progressively separate:
-
-Raw → Bronze → Silver → Gold
-
-Each layer will have a clearly defined responsibility.
-
-4. Validate before trusting
-
-Data quality checks will be implemented before datasets are promoted to downstream layers.
-
-5. Automate repetitive work
-
-Manual downloads and transformations will progressively be replaced by reproducible pipelines.
-
-6. Build incrementally
-
-Technologies will be introduced when they solve a concrete problem instead of adding tools solely for the sake of the stack.
-
-Expected Final Result
-
-At the end of the project, the platform should be capable of:
-
-Discovering new source resources automatically.
-Ingesting production data.
-Persisting raw source data.
-Transforming and standardizing datasets.
-Validating data quality automatically.
-Processing data using distributed technologies.
-Building dimensional analytical models.
-Publishing business-ready datasets.
-Orchestrating the complete pipeline.
-Running automated tests through CI/CD.
-Exposing analytical data through SQL and Power BI.
-
-The final objective is to have a complete, reproducible end-to-end Data Engineering project that demonstrates practical knowledge of modern data platforms.
-
-Learning Objectives
-
-This project is also being developed as a practical learning environment to gain experience with:
-
-Data ingestion
-ETL / ELT
-Data Lakes
-Data Warehousing
-Dimensional modeling
-Distributed processing
-Data quality
-SQL analytics
-Cloud data platforms
-Pipeline orchestration
-CI/CD
-Infrastructure and containerization
-Data visualization
-
-The implementation will prioritize understanding why each technology is used, rather than simply assembling a large technology stack.
-
-Author
-
-Silvio Martinez
-
-Data Engineering / Systems / Cloud
+Data Engineering | Python | SQL | PySpark | dbt | Data Quality
 
 Argentina
+
+GitHub: [Silvito](https://github.com/Silvito)

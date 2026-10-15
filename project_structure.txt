@@ -1,0 +1,75 @@
+﻿[DIR]  docs
+  data_discovery.md
+[DIR]  notebooks
+  01_data_exploration.ipynb
+[DIR]  oil_gas_analytics
+  [DIR]  analyses
+    .gitkeep
+  [DIR]  macros
+    .gitkeep
+  [DIR]  models
+    [DIR]  marts
+      fct_monthly_production.sql
+      schema.yml
+    [DIR]  staging
+      stg_production.sql
+  [DIR]  seeds
+    .gitkeep
+  [DIR]  snapshots
+    .gitkeep
+  [DIR]  target
+    [DIR]  compiled
+      [DIR]  oil_gas_analytics
+    [DIR]  run
+      [DIR]  oil_gas_analytics
+    graph.gpickle
+    graph_summary.json
+    manifest.json
+    osi_document.json
+    partial_parse.msgpack
+    run_results.json
+    semantic_manifest.json
+  [DIR]  tests
+    .gitkeep
+    monthly_totals_match_staging.sql
+    non_negative_monthly_production.sql
+    unique_monthly_production_key.sql
+  .gitignore
+  dbt_project.yml
+  dev.duckdb
+  README.md
+[DIR]  src
+  [DIR]  ai
+    [DIR]  schemas
+      __init__.py
+      production.py
+    [DIR]  tools
+      __init__.py
+      definitions.py
+      history_tool.py
+      production_tool.py
+      registry.py
+    agent.py
+    fake_llm.py
+    llm_client.py
+    llm_interface.py
+  [DIR]  ingestion
+    ckan_client.py
+  [DIR]  quality
+    compare_dbt_gold.py
+    data_quality.py
+  [DIR]  transformation
+    gold_spark.py
+    silver.py
+    silver_spark.py
+[DIR]  tests
+  test_agent.py
+  test_data_quality.py
+  test_gold_spark.py
+  test_history_tool.py
+  test_production_tool.py
+  test_spark_silver.py
+.gitignore
+project_structure.txt
+README.md
+requirements.txt
