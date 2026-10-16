@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, sum as spark_sum, when
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -55,6 +55,7 @@ def test_spark_silver_matches_pandas_silver():
     spark_df = spark.read.parquet(
         str(SPARK_SILVER_PATH)
     )
+
 
     # --------------------------------------------------
     # 1. Validación estructural
@@ -187,7 +188,6 @@ def test_spark_silver_matches_pandas_silver():
     different_rows = joined.filter(
         any_difference
     )
-
     assert different_rows.count() == 0
 
     spark.stop()
