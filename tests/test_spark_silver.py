@@ -2,8 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, sum as spark_sum, when
-
+from pyspark.sql.functions import col 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
