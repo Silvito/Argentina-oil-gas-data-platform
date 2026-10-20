@@ -3,6 +3,8 @@ import subprocess
 import sys
 
 STAGES = [
+    ("Ingestion - CKAN", "src/ingestion/ckan_client.py"),
+    ("Bronze - RAW a Parquet", "src/transformation/bronze.py"),
     ("Silver - PySpark", "src/transformation/silver_spark.py"),
     ("Gold - PySpark", "src/transformation/gold_spark.py"),
 ]
@@ -27,8 +29,12 @@ def main():
             )
             sys.exit(result.returncode)
 
-    print("\nPipeline Silver → Gold completado.", flush=True)
+    print(
+        "\nPipeline completo: Ingestion → Bronze → Silver → Gold.",
+        flush=True,
+    )
 
 
 if __name__ == "__main__":
     main()
+
