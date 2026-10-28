@@ -13,7 +13,6 @@ __pycache__/
 data/raw/
 data/bronze/
 data/silver/
-data/gold/
 
 # Environment variables
 .env
