@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-GOLD_PATH = PROJECT_ROOT / "data" / "gold" / "production_monthly"
+GOLD_PATH = PROJECT_ROOT / "data" / "gold" / "production_monthly.parquet"
 
 st.title("🛢️ Argentina Oil & Gas Analytics")
 st.caption(
